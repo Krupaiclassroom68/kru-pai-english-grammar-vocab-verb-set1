@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verb Quiz 50 • Set 1 & Set 2 (Review + Quiz)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#F8FAFF;
+      --card:#FFFFFF;
+      --ink:#0F172A;
+      --muted:#64748B;
+      --brand:#2563EB;
+      --accent:#F59E0B;
+      --ok:#16A34A;
+      --bad:#DC2626;
+      --shadow: 0 8px 22px rgba(2,6,23,.08);
+      --radius: 20px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Prompt",sans-serif; display:flex; justify-content:center; min-height:100vh; padding:24px;}
+    .app{width:min(980px,100%);}
+    .brand{display:flex; flex-direction:column; align-items:center; gap:8px; margin-bottom:18px;}
+    .logo{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--accent));box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;color:white;font:700 26px Fredoka;}
+    .title{font:700 26px "Fredoka",sans-serif;color:var(--brand)}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px;text-align:center;}
+    h1{font:700 clamp(22px,4.2vw,34px) "Fredoka";margin:6px 0 10px;color:var(--brand)}
+    p.lead{color:var(--muted);font-size:18px}
+    input[type=text], select{width:100%;padding:16px;border-radius:14px;border:2px solid #E2E8F0;font-size:18px;}
+    input[type=text]:focus, select:focus{border-color:var(--brand);outline:none;}
+    .btn{cursor:pointer;border:none;border-radius:14px;padding:14px 20px;font:700 18px "Fredoka";transition:.2s}
+    .btn.primary{background:linear-gradient(135deg,var(--brand),var(--accent));color:white;box-shadow:0 6px 15px rgba(37,99,235,.3)}
+    .btn.secondary{background:#fff;color:var(--brand);border:2px solid var(--brand)}
+    .disclaimer{font-size:14px;color:#475569;margin-top:12px;background:#EFF6FF;border-left:4px solid var(--brand);padding:10px 12px;border-radius:12px;text-align:left}
+    .word{font:700 clamp(36px,8vw,60px) "Fredoka";margin:10px 0;color:#111827}
+    .thai{font:700 clamp(28px,7vw,48px) "Fredoka";margin:10px 0;color:#1E40AF}
+    .sub{font-size:20px;color:#334155;margin-bottom:16px}
+    .choices{display:grid;gap:12px;grid-template-columns:1fr;}
+    @media(min-width:640px){.choices{grid-template-columns:1fr 1fr;}}
+    .choice{padding:14px;border:2px solid #E2E8F0;border-radius:14px;font:700 22px "Prompt";cursor:pointer;transition:.15s;background:#fff}
+    .choice.correct{border-color:var(--ok);background:#ECFDF5}
+    .choice.wrong{border-color:var(--bad);background:#FEF2F2}
+    .scoreBig{font:800 clamp(28px,7vw,48px) "Fredoka";color:var(--brand);margin:10px 0 0;}
+    .toolbar{display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+    .meta{font-size:14px;color:#64748B;margin-top:6px}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="brand">
+    <div class="logo">KP</div>
+    <div class="title">Kru Pai Classroom</div>
+  </div>
+
+  <!-- หน้าแรก -->
+  <section id="start" class="card">
+    <h1>✨ Verb Quiz 50</h1>
+    <p class="lead">โหมดทบทวน + แบบทดสอบคำกริยา • เลือกชุดคำศัพท์ก่อนเริ่ม</p>
+    <input id="playerName" type="text" placeholder="พิมพ์ชื่อเล่นของคุณ" style="margin-bottom:10px;" />
+    <select id="setPicker" style="margin-bottom:14px;">
+      <option value="1">Set 1 – คำกริยาพื้นฐาน (ป.4–6)</option>
+      <option value="2">Set 2 – คำกริยาชุดเสริม (ใช้บ่อย)</option>
+    </select>
+    <div class="toolbar">
+      <button class="btn primary" onclick="startReview()">📖 ทบทวนคำศัพท์</button>
+      <button class="btn secondary" onclick="goQuiz()">▶️ ไปทำแบบทดสอบ</button>
+    </div>
+    <div class="disclaimer">
+      ⚠️ หมายเหตุเรื่องเสียง: ใช้ระบบเสียงของเบราว์เซอร์ (<em>Speech Synthesis</em>)<br>
+      <strong>เสียงอาจเพี้ยนต่างกัน</strong> ตามอุปกรณ์และเบราว์เซอร์ที่ใช้งาน ต้องขออภัยมา ณ ที่นี้
+    </div>
+  </section>
+
+  <!-- หน้า Review -->
+  <section id="review" class="card" style="display:none">
+    <h1>📖 ทบทวนคำศัพท์</h1>
+    <div id="reviewWord" class="word">word</div>
+    <div id="reviewThai" class="thai">คำแปล</div>
+    <div class="toolbar">
+      <button class="btn secondary" onclick="prevReview()">⏮️ ย้อน</button>
+      <button class="btn secondary" onclick="replayVoice()">🔊 ฟังซ้ำ</button>
+      <button class="btn secondary" onclick="nextReview()">⏭️ ข้าม</button>
+      <button class="btn primary" onclick="goQuiz()">▶️ ไปทำแบบทดสอบ</button>
+    </div>
+    <p class="sub" id="reviewProg">1 / 50</p>
+    <div class="meta" id="setLabelReview">ชุด: Set 1</div>
+  </section>
+
+  <!-- หน้า Quiz (ไม่มีเสียง) -->
+  <section id="quiz" class="card" style="display:none">
+    <h1 id="progressText">ข้อ 1/50</h1>
+    <div id="thaiWord" class="thai">…</div>
+    <div class="sub">เลือกคำตอบที่ถูกต้อง</div>
+    <div id="choices" class="choices"></div>
+    <div class="toolbar">
+      <button class="btn secondary" onclick="resetAll()">🔁 เริ่มใหม่</button>
+    </div>
+    <div class="meta" id="setLabelQuiz">ชุด: Set 1</div>
+  </section>
+
+  <!-- หน้าผลลัพธ์ -->
+  <section id="result" class="card" style="display:none">
+    <div class="scoreBig" id="scoreBig">คะแนนรวม</div>
+    <p id="summary"></p>
+    <div class="toolbar">
+      <button class="btn primary" onclick="resetAll()">🔁 เล่นใหม่</button>
+    </div>
+  </section>
+</div>
+
+<script>
+// ===== Datasets =====
+const SET1=[
+{en:"be",th:"เป็น, อยู่"},
+{en:"have",th:"มี"},
+{en:"do",th:"ทำ"},
+{en:"say",th:"พูด"},
+{en:"go",th:"ไป"},
+{en:"get",th:"ได้รับ"},
+{en:"make",th:"ทำ, สร้าง"},
+{en:"know",th:"รู้"},
+{en:"think",th:"คิด"},
+{en:"take",th:"เอา, หยิบ"},
+{en:"see",th:"เห็น"},
+{en:"come",th:"มา"},
+{en:"want",th:"ต้องการ"},
+{en:"use",th:"ใช้"},
+{en:"find",th:"พบ, หาเจอ"},
+{en:"give",th:"ให้"},
+{en:"tell",th:"บอก"},
+{en:"work",th:"ทำงาน"},
+{en:"call",th:"โทร, เรียก"},
+{en:"try",th:"พยายาม"},
+{en:"ask",th:"ถาม"},
+{en:"need",th:"ต้องการ"},
+{en:"feel",th:"รู้สึก"},
+{en:"Become",th:"กลายเป็น"},
+{en:"leave",th:"ออกไป, ทิ้งไว้"},
+{en:"put",th:"วาง"},
+{en:"mean",th:"หมายถึง"},
+{en:"keep",th:"เก็บ, รักษา"},
+{en:"let",th:"อนุญาต"},
+{en:"begin",th:"เริ่มต้น"},
+{en:"help",th:"ช่วย"},
+{en:"show",th:"แสดง"},
+{en:"hear",th:"ได้ยิน"},
+{en:"play",th:"เล่น"},
+{en:"run",th:"วิ่ง"},
+{en:"move",th:"เคลื่อน, ย้าย"},
+{en:"like",th:"ชอบ"},
+{en:"live",th:"อาศัยอยู่"},
+{en:"believe",th:"เชื่อ"},
+{en:"hold",th:"ถือ"},
+{en:"bring",th:"นำมา"},
+{en:"happen",th:"เกิดขึ้น"},
+{en:"write",th:"เขียน"},
+{en:"provide",th:"จัดหาให้"},
+{en:"sit",th:"นั่ง"},
+{en:"stand",th:"ยืน"},
+{en:"lose",th:"สูญเสีย, แพ้"},
+{en:"pay",th:"จ่าย"},
+{en:"meet",th:"พบ"},
+{en:"include",th:"รวม"}
+];
+
+const SET2=[
+{en:"continue",th:"ดำเนินต่อ"},
+{en:"learn",th:"เรียนรู้"},
+{en:"change",th:"เปลี่ยน"},
+{en:"understand",th:"เข้าใจ"},
+{en:"watch",th:"ดู"},
+{en:"follow",th:"ติดตาม"},
+{en:"stop",th:"หยุด"},
+{en:"create",th:"สร้าง"},
+{en:"speak",th:"พูด"},
+{en:"read",th:"อ่าน"},
+{en:"spend",th:"ใช้ (เวลา/เงิน)"},
+{en:"grow",th:"เติบโต"},
+{en:"open",th:"เปิด"},
+{en:"walk",th:"เดิน"},
+{en:"win",th:"ชนะ"},
+{en:"offer",th:"เสนอ"},
+{en:"remember",th:"จำได้"},
+{en:"love",th:"รัก"},
+{en:"consider",th:"พิจารณา"},
+{en:"buy",th:"ซื้อ"},
+{en:"wait",th:"รอ"},
+{en:"serve",th:"ให้บริการ"},
+{en:"die",th:"ตาย"},
+{en:"send",th:"ส่ง"},
+{en:"build",th:"สร้าง"},
+{en:"stay",th:"พักอยู่"},
+{en:"fall",th:"ตก, ล้ม"},
+{en:"cut",th:"ตัด"},
+{en:"reach",th:"ไปถึง"},
+{en:"cook",th:"ทำอาหาร"},
+{en:"remain",th:"ยังคง"},
+{en:"suggest",th:"แนะนำ"},
+{en:"raise",th:"ยก, เลี้ยงดู"},
+{en:"pass",th:"ผ่าน"},
+{en:"sell",th:"ขาย"},
+{en:"decide",th:"ตัดสินใจ"},
+{en:"return",th:"กลับมา, ส่งคืน"},
+{en:"explain",th:"อธิบาย"},
+{en:"hope",th:"หวัง"},
+{en:"carry",th:"แบก, ถือ"},
+{en:"break",th:"ทำแตก"},
+{en:"improve",th:"ทำให้ดีขึ้น"},
+{en:"drive",th:"ขับรถ"},
+{en:"support",th:"สนับสนุน"},
+{en:"choose",th:"เลือก"},
+{en:"eat",th:"กิน"},
+{en:"drink",th:"ดื่ม"},
+{en:"teach",th:"สอน"},
+{en:"study",th:"ศึกษา, อ่านหนังสือ"},
+{en:"smile",th:"ยิ้ม"}
+];
+
+// ===== Elements =====
+const el={
+  start:document.getElementById('start'),
+  review:document.getElementById('review'),
+  quiz:document.getElementById('quiz'),
+  result:document.getElementById('result'),
+  playerName:document.getElementById('playerName'),
+  setPicker:document.getElementById('setPicker'),
+  reviewWord:document.getElementById('reviewWord'),
+  reviewThai:document.getElementById('reviewThai'),
+  reviewProg:document.getElementById('reviewProg'),
+  setLabelReview:document.getElementById('setLabelReview'),
+  thaiWord:document.getElementById('thaiWord'),
+  choices:document.getElementById('choices'),
+  progressText:document.getElementById('progressText'),
+  setLabelQuiz:document.getElementById('setLabelQuiz'),
+  scoreBig:document.getElementById('scoreBig'),
+  summary:document.getElementById('summary')
+};
+
+// ===== State =====
+let currentSet=1;
+let DATA=SET1;
+let order=[],idx=0,score=0,autoTimer=null,reviewIndex=0;
+
+// ===== Utils =====
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function say(text){try{window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';window.speechSynthesis.speak(u);}catch(e){}}
+function applySet(){
+  currentSet = el.setPicker.value==='2'?2:1;
+  DATA = currentSet===2? SET2 : SET1;
+  el.setLabelReview.textContent = 'ชุด: Set ' + currentSet;
+  el.setLabelQuiz.textContent = 'ชุด: Set ' + currentSet;
+}
+
+// ===== Review Mode (with voice + auto-advance) =====
+function startReview(){
+  if(!el.playerName.value.trim()){alert("กรุณากรอกชื่อก่อน");return;}
+  applySet();
+  el.start.style.display='none';el.review.style.display='block';
+  reviewIndex=0;showReview(true);
+}
+function showReview(auto=true){
+  clearTimeout(autoTimer);
+  const it=DATA[reviewIndex];
+  el.reviewWord.textContent=it.en;
+  el.reviewThai.textContent=it.th;
+  el.reviewProg.textContent=`${reviewIndex+1} / ${DATA.length}`;
+  say(it.en);
+  if(auto){ autoTimer=setTimeout(()=>{nextReview(true)},3000); }
+}
+function nextReview(autoAdvance=false){
+  reviewIndex=Math.min(DATA.length-1,reviewIndex+1);
+  showReview(autoAdvance);
+}
+function prevReview(){
+  clearTimeout(autoTimer);
+  reviewIndex=Math.max(0,reviewIndex-1);
+  showReview(false);
+}
+function replayVoice(){ say(DATA[reviewIndex].en); }
+
+// ===== Quiz Mode (NO voice) =====
+function goQuiz(){
+  clearTimeout(autoTimer);
+  if(!el.playerName.value.trim()){alert("กรุณากรอกชื่อก่อน");return;}
+  applySet();
+  el.start.style.display='none';el.review.style.display='none';el.result.style.display='none';
+  el.quiz.style.display='block';
+  order=Array.from(DATA.keys());shuffle(order);idx=0;score=0;
+  loadQuestion();
+}
+function loadQuestion(){
+  const qIndex=order[idx];const item=DATA[qIndex];
+  el.progressText.textContent=`ข้อ ${idx+1}/${DATA.length}`;
+  el.thaiWord.textContent=item.th;
+  const others=DATA.filter((_,i)=>i!==qIndex).map(x=>x.en);shuffle(others);
+  const options=shuffle([item.en,...others.slice(0,3)]);
+  el.choices.innerHTML='';
+  options.forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='choice';
+    b.textContent=opt;
+    b.onclick=()=>submit(opt,item.en,b);
+    el.choices.appendChild(b);
+  });
+}
+function submit(ans,correct,btn){
+  const buttons=[...el.choices.children];
+  buttons.forEach(b=>b.disabled=true);
+  if(ans===correct){score++;btn.classList.add('correct');}else{btn.classList.add('wrong');}
+  buttons.forEach(b=>{if(b.textContent===correct)b.classList.add('correct');});
+  setTimeout(()=>{idx++; if(idx>=DATA.length){finish();} else {loadQuestion();}}, 900);
+}
+function finish(){
+  el.quiz.style.display='none';el.result.style.display='block';
+  el.scoreBig.textContent=`คุณได้ ${score}/${DATA.length} คะแนน`;
+  const pct=Math.round((score/DATA.length)*100);
+  el.summary.textContent=`คิดเป็น ${pct}% เกณฑ์แนะนำ: ≥ 80% เก่งมาก!`;
+}
+function resetAll(){
+  clearTimeout(autoTimer);window.speechSynthesis.cancel();
+  el.playerName.value='';
+  el.review.style.display='none';el.quiz.style.display='none';el.result.style.display='none';
+  el.start.style.display='block';
+}
+</script>
+</body>
+</html>
